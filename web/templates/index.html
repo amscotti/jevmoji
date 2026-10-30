@@ -1,0 +1,169 @@
+{{define "page" -}}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>jevmoji — emoji reactions for your group chat</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗑️</text></svg>" />
+    <meta
+      name="description"
+      content="Type a group-chat message, get the emoji reactions it deserves — scored by TypeSafe's Jev decision model."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap"
+    />
+    <link rel="stylesheet" href="https://unpkg.com/open-props@1.7.23/open-props.min.css" integrity="sha384-fsyUJwnN3qLArJUL5oaEYS3/WnhCmI4K5x+oB8wFigOMTJaIvys56ozH3+nE/qcf" crossorigin="anonymous" />
+    <link rel="stylesheet" href="/static/app.css" />
+    <script src="https://unpkg.com/htmx.org@4.0.0/dist/htmx.min.js" integrity="sha384-BvJpBiO8Kh31EqtJe5DRIeWrHWnCGkwytKs9NKFi86Hhw96dEqdEMzZDeK9iEGTc" crossorigin="anonymous" defer></script>
+    <script src="/static/ui.js" defer></script>
+  </head>
+  <body>
+    <header class="chrome">
+      <div class="chrome-inner">
+        <span class="brand">
+          <span class="brand-mark" aria-hidden="true">🙃</span>
+          <span class="wordmark">jevmoji</span>
+        </span>
+        <span class="tagline">a tiny Jev experiment</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <h1>Words in. <span>Emojis out.</span></h1>
+        <p class="hero-sub">Paste a message. See how Jev would react — in emoji.</p>
+      </section>
+
+      <section id="composer" class="composer">
+        <label class="composer-label" for="message">Your message</label>
+        <textarea
+          id="message"
+          name="text"
+          rows="2"
+          maxlength="800"
+          placeholder="I'm going to need another cup of coffee to deal with this meeting."
+          hx-post="/api/reactions"
+          hx-trigger="input changed delay:400ms"
+          hx-target="#results"
+          hx-swap="innerHTML"
+          hx-sync="this:replace"
+          hx-include="this"
+          hx-indicator="#composer, #results"
+          aria-describedby="composer-hint"
+          autocomplete="off"
+        ></textarea>
+        <div id="composer-hint" class="composer-foot" role="status">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span class="status-idle">Reactions update after a short pause.</span>
+          <span class="status-busy">Finding the emoji energy…</span>
+        </div>
+      </section>
+
+      <div id="examples" class="examples" role="group" aria-label="Example messages" hidden>
+        <span class="examples-label">Try one:</span>
+        <button type="button" class="sample-button" data-example-message="I'm going to need another cup of coffee to deal with this meeting.">
+          <span aria-hidden="true">☕</span> Meeting fuel
+        </button>
+        <button type="button" class="sample-button" data-example-message="I finally cleared my inbox.">
+          <span aria-hidden="true">✨</span> Small victory
+        </button>
+        <button type="button" class="sample-button" data-example-message="Who wants pizza for lunch?">
+          <span aria-hidden="true">🍕</span> Lunch plans
+        </button>
+      </div>
+
+      <section id="results" aria-live="polite" aria-busy="false" aria-label="AI reactions">
+        {{template "results" .}}
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>
+        A little emoji perspective, powered by <a href="https://docs.typesafe.ai">TypeSafe Jev</a>.
+        <span class="footer-note">Zero generated text.</span>
+      </span>
+    </footer>
+  </body>
+</html>
+{{- end}}
+
+{{define "results" -}}
+{{- if .Error}}
+      <div class="card error-card" role="alert">
+        <p class="error-title">The emoji oracle is taking a breather.</p>
+        <p class="error-body">{{.Error}}</p>
+        <p class="error-fix">Edit your message to try again.</p>
+      </div>
+{{- else if not .Suggestion}}
+      <div class="card idle-card">
+        <span class="idle-mark" aria-hidden="true">💭</span>
+        <div>
+          <p class="idle-title">Your reactions will land here.</p>
+          <p class="idle-body">Write a message above. Jev will find up to five reactions that fit.</p>
+        </div>
+      </div>
+{{- else}}
+      <div class="card message-card">
+        <div class="result-head">
+          <h2>Jev's picks</h2>
+          {{- if .Suggestion.Chosen}}
+          <div class="result-actions">
+            <button type="button" class="copy-button" data-copy-emojis="{{range .Suggestion.Chosen}}{{.}} {{end}}" hidden>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+                <rect x="9" y="9" width="11" height="11" rx="2" />
+                <path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3" />
+              </svg>
+              <span data-copy-label>Copy emojis</span>
+            </button>
+            <span class="sr-only" data-copy-status role="status"></span>
+          </div>
+          {{- end}}
+        </div>
+        <p class="message-text">{{.Suggestion.State}}</p>
+
+        {{- if .Suggestion.Chosen}}
+        <div class="chosen" role="group" aria-label="AI-suggested reactions">
+          {{- range $i, $r := .Suggestion.Reactions}}{{if $r.Chosen}}
+          <span
+            class="pill chosen-pill"
+            style="--pop-order: {{$i}}"
+            role="img"
+            tabindex="0"
+            aria-label="{{$r.Label}} — {{pct $r.Probability}} model probability"
+            title="{{$r.Label}} — probability {{pct $r.Probability}}"
+          >
+            <span class="pill-emoji" aria-hidden="true">{{$r.Emoji}}</span>
+            <span class="pill-caption" aria-hidden="true">
+              <span class="pill-label">{{$r.Label}}</span>
+              <span class="pill-score">{{pct $r.Probability}} fit</span>
+            </span>
+          </span>
+          {{- end}}{{end}}
+        </div>
+        <p class="odds-hint">Hover or focus on a reaction for the odds.</p>
+        {{- else}}
+        <p class="no-reactions">No strong matches this time. Try adding a little more context.</p>
+        {{- end}}
+
+        <details class="model-details">
+          <summary>Behind the reactions</summary>
+          <div class="stats">
+            <span class="stat">{{len .Suggestion.Reactions}} emojis scored</span>
+            {{- if .Suggestion.Model}}
+            <span class="stat mono">{{.Suggestion.Model}}</span>
+            {{- end}}
+            {{- if .Suggestion.LatencyMS}}
+            <span class="stat mono">{{.Suggestion.LatencyMS}}ms</span>
+            {{- end}}
+            {{- if .Suggestion.Usage}}
+            <span class="stat mono">{{.Suggestion.Usage.InputTokens}} input · {{.Suggestion.Usage.OutputTokens}} output tokens</span>
+            {{- end}}
+          </div>
+        </details>
+      </div>
+{{- end}}
+{{- end}}

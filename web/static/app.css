@@ -1,0 +1,656 @@
+/* jevmoji design layer.
+ *
+ * Palette: plum ink on lilac-white, aubergine chrome (Slack DNA, our hue),
+ * reaction gold as the one accent. Type: Bricolage Grotesque (CDN) for the
+ * wordmark and hero; system-ui body; mono for the model details.
+ * Emoji stickers are the signature; everything around them stays quiet.
+ * Open Props (CDN) supplies shadows where they fit, with fallbacks so
+ * this sheet stands alone.
+ */
+
+:root {
+  --ink: #26152b;
+  --ink-soft: #5d4a66;
+  --canvas: #faf7fb;
+  --chrome: #3b1a45;
+  --gold: #ffd23f;
+  --gold-deep: #e6b81f;
+  --mist: #e8dff0;
+  --card-shadow: var(--shadow-2, 0 2px 12px rgba(38, 21, 43, 0.08));
+  --pop-ease: cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: rgba(255, 210, 63, 0.5);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  text-rendering: optimizeLegibility;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+button {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--chrome);
+  outline-offset: 4px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- chrome bar ---------- */
+
+.chrome {
+  background: var(--chrome);
+  color: #fff;
+}
+
+.chrome-inner {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--gold);
+  font-size: 1.2rem;
+  transform: rotate(-6deg);
+}
+
+.wordmark {
+  font-family: "Bricolage Grotesque", system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 1.45rem;
+  letter-spacing: -0.02em;
+}
+
+.tagline {
+  font-size: 0.8rem;
+  color: var(--mist);
+}
+
+/* ---------- hero ---------- */
+
+main {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 36px 24px 32px;
+}
+
+.hero {
+  margin-bottom: 28px;
+}
+
+.hero h1 {
+  font-family: "Bricolage Grotesque", system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(2.6rem, 5.5vw, 3.8rem);
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  margin: 0 0 14px;
+}
+
+.hero h1 span {
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
+}
+
+.hero h1 span::before {
+  content: "";
+  position: absolute;
+  inset: auto -0.035em 0.07em;
+  height: 0.18em;
+  border-radius: 0.04em;
+  background: var(--gold);
+  transform: rotate(-1.5deg);
+  z-index: -1;
+}
+
+.hero-sub {
+  color: var(--ink-soft);
+  font-size: 1.04rem;
+  margin: 0;
+}
+
+/* ---------- composer ---------- */
+
+.composer {
+  background: #fff;
+  border: 1px solid var(--mist);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  padding: 18px 20px 14px;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.composer:focus-within {
+  border-color: var(--chrome);
+  box-shadow: 0 0 0 3px rgba(59, 26, 69, 0.1);
+}
+
+.composer-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 650;
+  margin-bottom: 8px;
+}
+
+.composer textarea {
+  width: 100%;
+  border: 0;
+  outline: none;
+  resize: vertical;
+  display: block;
+  padding: 0;
+  font: inherit;
+  font-size: 1.05rem;
+  background: transparent;
+  color: var(--ink);
+  min-height: 76px;
+  line-height: 1.6;
+}
+
+.composer textarea::placeholder {
+  color: var(--ink-soft);
+  opacity: 0.85;
+}
+
+.composer-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 0.76rem;
+  color: var(--ink-soft);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--ink-soft);
+}
+
+.status-busy,
+.composer.htmx-request .status-idle {
+  display: none;
+}
+
+.composer.htmx-request .status-busy {
+  display: inline;
+}
+
+.composer.htmx-request .status-dot {
+  background: var(--chrome);
+  animation: pulse 800ms ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  to {
+    opacity: 0.3;
+  }
+}
+
+/* The examples are real messages, not a second emoji catalog. */
+.examples {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.examples-label {
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  margin-right: 2px;
+}
+
+.sample-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 1px solid var(--mist);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.sample-button:hover,
+.sample-button.is-current {
+  border-color: var(--gold-deep);
+  background: color-mix(in srgb, var(--gold) 16%, white);
+  color: var(--ink);
+}
+
+/* ---------- cards ---------- */
+
+.card {
+  background: #fff;
+  border: 1px solid var(--mist);
+  border-radius: 20px;
+  box-shadow: var(--card-shadow);
+  padding: 24px;
+  margin-top: 26px;
+}
+
+.idle-card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: transparent;
+  border-style: dashed;
+  box-shadow: none;
+}
+
+.idle-mark {
+  display: grid;
+  place-items: center;
+  flex: 0 0 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: var(--mist);
+  font-size: 1.5rem;
+  transform: rotate(-5deg);
+}
+
+.idle-title {
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.idle-body {
+  color: var(--ink-soft);
+  margin: 0;
+  max-width: 52ch;
+  font-size: 0.9rem;
+}
+
+.error-card {
+  border-color: #f0c6c6;
+  background: #fff6f6;
+}
+
+.error-title {
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.error-body {
+  margin: 0 0 6px;
+  color: var(--ink-soft);
+}
+
+.error-fix {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+/* ---------- message card ---------- */
+
+.result-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.result-head h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 750;
+}
+
+.copy-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 112px;
+  padding: 7px 9px;
+  border: 1px solid var(--mist);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.copy-button:hover {
+  background: var(--canvas);
+  border-color: var(--ink-soft);
+}
+
+.copy-button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.message-text {
+  color: var(--ink-soft);
+  font-size: 0.98rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 0 0 22px;
+}
+
+/* ---------- pills: chosen row ---------- */
+
+.chosen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.pill {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 10px;
+  width: 100px;
+  min-height: 100px;
+  padding: 16px 8px 12px;
+  border: 1px solid var(--gold-deep);
+  border-radius: 18px;
+  background: var(--gold);
+  color: var(--ink);
+  transform: rotate(var(--tilt, 0deg));
+}
+
+.pill-emoji {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.pill-caption {
+  display: grid;
+  width: 100%;
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 650;
+}
+
+.pill-caption > span {
+  grid-area: 1 / 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: opacity 150ms ease;
+}
+
+.pill-score {
+  opacity: 0;
+}
+
+/* A small sticker-drop moment, with no voting or local reaction state. */
+.chosen-pill {
+  box-shadow: 2px 4px 0 rgba(38, 21, 43, 0.08);
+  animation: pop-in 420ms var(--pop-ease) backwards;
+  animation-delay: calc(var(--pop-order, 0) * 90ms);
+  transition: transform 160ms ease;
+}
+
+.chosen-pill:nth-child(4n + 1) {
+  --tilt: -3deg;
+}
+
+.chosen-pill:nth-child(4n + 2) {
+  --tilt: 2deg;
+}
+
+.chosen-pill:nth-child(4n + 3) {
+  --tilt: -1deg;
+}
+
+.chosen-pill:nth-child(4n + 4) {
+  --tilt: 3deg;
+}
+
+.chosen-pill:hover,
+.chosen-pill:focus-visible {
+  transform: translateY(-3px);
+}
+
+.chosen-pill:hover .pill-label,
+.chosen-pill:focus .pill-label {
+  opacity: 0;
+}
+
+.chosen-pill:hover .pill-score,
+.chosen-pill:focus .pill-score {
+  opacity: 1;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.6) rotate(-6deg);
+  }
+  60% {
+    transform: translateY(2px) scale(1.06) rotate(1deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(var(--tilt, 0deg));
+  }
+}
+
+.odds-hint {
+  margin: 18px 0 0;
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+}
+
+.no-reactions {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+/* ---------- optional model details + footer ---------- */
+
+.model-details {
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid var(--mist);
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+}
+
+.model-details summary {
+  width: fit-content;
+  cursor: pointer;
+}
+
+.model-details summary:hover {
+  color: var(--ink);
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 12px;
+  font-size: 0.72rem;
+}
+
+.stat.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.footer {
+  text-align: center;
+  padding: 8px 24px 28px;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+}
+
+.footer a {
+  color: var(--chrome);
+  text-underline-offset: 3px;
+}
+
+.footer-note {
+  display: inline-block;
+  margin-left: 4px;
+}
+
+/* ---------- responsive + reduced motion ---------- */
+
+@media (max-width: 480px) {
+  .chrome-inner {
+    padding: 14px 20px;
+    gap: 12px;
+  }
+
+  main {
+    padding: 28px 20px 28px;
+  }
+
+  .hero {
+    margin-bottom: 24px;
+  }
+
+  .hero-sub {
+    font-size: 0.95rem;
+  }
+
+  .composer {
+    padding: 16px;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  .chosen {
+    gap: 10px;
+  }
+
+  .chosen-pill {
+    width: calc((100% - 30px) / 4);
+    min-height: 82px;
+    padding: 12px 4px 10px;
+    border-radius: 14px;
+  }
+
+  .chosen:has(.chosen-pill:nth-child(5)) {
+    justify-content: center;
+  }
+
+  .chosen:has(.chosen-pill:nth-child(5)) .chosen-pill {
+    width: calc((100% - 20px) / 3);
+  }
+
+  .pill-emoji {
+    font-size: 1.8rem;
+  }
+
+  .pill-caption {
+    font-size: 0.68rem;
+  }
+
+  .examples-label {
+    width: 100%;
+  }
+
+  .sample-button {
+    flex: 1 1 0;
+    justify-content: center;
+    gap: 4px;
+    min-width: 0;
+    min-height: 44px;
+    padding: 8px 7px;
+    font-size: 0.7rem;
+    white-space: nowrap;
+  }
+
+  .copy-button {
+    min-height: 44px;
+  }
+
+  .model-details summary {
+    display: list-item;
+    align-content: center;
+    min-height: 44px;
+  }
+
+  .idle-card {
+    gap: 12px;
+  }
+
+  .tagline {
+    font-size: 0.7rem;
+    max-width: 11ch;
+    text-align: right;
+  }
+
+  .footer-note {
+    display: block;
+    margin: 4px 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chosen-pill,
+  .composer.htmx-request .status-dot {
+    animation: none;
+  }
+
+  .pill,
+  .composer,
+  .pill-caption > span,
+  .sample-button {
+    transition: none;
+  }
+}

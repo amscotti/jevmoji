@@ -1,0 +1,19 @@
+# golangci-lint v2 configuration.
+# Docs: https://golangci-lint.run/usage/configuration/
+#
+# Sane, stable settings; no aggressive rules.
+
+version: "2"
+
+linters:
+  default: none
+  enable:
+    - contextcheck
+    - errcheck
+    - govet
+    - staticcheck
+    - gocritic
+    - ineffassign
+formatters:
+  enable:
+    - gofmt

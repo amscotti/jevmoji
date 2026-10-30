@@ -1,0 +1,54 @@
+# jevmoji CI: formatting, vet, tests, build, lint, and container smoke test.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: gofmt
+        run: test -z "$(gofmt -l .)"
+
+      - name: vet
+        run: go vet ./...
+
+      - name: test
+        run: go test -race ./...
+
+      - name: build
+        run: go build -o jevmoji ./cmd/jevmoji
+
+      - name: lint
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.14.0
+
+      - name: Build container
+        run: docker build -t jevmoji:ci .
+
+      - name: Smoke-test container
+        run: |
+          docker run -d --name jevmoji-ci --read-only -p 127.0.0.1:18087:8080 jevmoji:ci
+          trap 'docker logs jevmoji-ci; docker rm -f jevmoji-ci' EXIT
+          curl --fail --silent --show-error --retry 10 --retry-connrefused --retry-delay 1 http://127.0.0.1:18087/health
+          curl --fail --silent --show-error http://127.0.0.1:18087/ > /dev/null
+          curl --fail --silent --show-error http://127.0.0.1:18087/static/app.css > /dev/null
+          curl --fail --silent --show-error http://127.0.0.1:18087/static/ui.js > /dev/null
+          curl --fail --silent --show-error -X POST -d 'text=' http://127.0.0.1:18087/api/reactions?format=json

@@ -1,0 +1,21 @@
+# Credentials are supplied at runtime, never sent to the image builder.
+.env
+.env.*
+**/.env
+**/.env.*
+
+# The image embeds the application assets, not repository/build artifacts.
+.git
+.github
+jevmoji
+dist
+docs
+coverage
+coverage.out
+*.test
+**/*.test
+README.md
+.playwright-mcp
+.DS_Store
+.idea
+.vscode

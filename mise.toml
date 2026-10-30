@@ -1,0 +1,27 @@
+# jevmoji toolchain and tasks, pinned via mise.
+# `mise install` sets up the environment; `mise run <task>` runs a task.
+
+[tools]
+go = "1.27.1"            # Go toolchain
+golangci-lint = "2.14.0" # linter
+gcloud = "587.0.0"       # Google Cloud SDK (Cloud Run deploys)
+
+[tasks.fmt]
+description = "Format Go sources"
+run = "gofmt -w ."
+
+[tasks.lint]
+description = "Lint gate (golangci-lint)"
+run = "golangci-lint run"
+
+[tasks.test]
+description = "Unit tests with the race detector"
+run = "go test -race ./..."
+
+[tasks.build]
+description = "Build the jevmoji binary"
+run = "go build -o jevmoji ./cmd/jevmoji"
+
+[tasks.start]
+description = "Run jevmoji locally"
+run = "go run ./cmd/jevmoji"

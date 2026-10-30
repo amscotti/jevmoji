@@ -1,0 +1,18 @@
+# Build artifacts
+/jevmoji
+/dist/
+coverage/
+coverage.out
+
+# Secrets — never commit keys
+.env
+.env.*
+!.env.example
+
+# Test artifacts
+*.test
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/
